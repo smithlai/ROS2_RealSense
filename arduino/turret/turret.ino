@@ -47,6 +47,8 @@ void loop() {
   
   bool parsed=false;
   if (strlen(inputString)){
+    Serial.print("Arduino: recv:");
+    Serial.println(inputString);
     parsed=parseCmd(inputString);
     inputString[0]='\0';
   }
@@ -54,6 +56,12 @@ void loop() {
     int p = doc["p"];
     int r = doc["r"];
     int y = doc["y"];
+    Serial.print("Arduino: rotate:");
+    Serial.print(p);
+    Serial.print(" ");
+    Serial.print(r);
+    Serial.print(" ");
+    Serial.println(y);
     rotate(p,r,y);
     delay(1000); 
   }
