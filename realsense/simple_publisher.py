@@ -17,9 +17,9 @@ class SimplePublisher(Node):
             "p" : 0,
         }
         self.ranges={
-            "r" : [0,0,0],
-            "y" : [0,180,15],
-            "p" : [0,90,15],
+            "r" : [0,0,0,1],    # min, max, step, direction
+            "y" : [0,180,15,1],
+            "p" : [0,90,15,1],
         }
 
         timer_period = 0.5
@@ -33,18 +33,33 @@ class SimplePublisher(Node):
         roll = math.radians(self.radians['r'])
         yaw = math.radians(self.radians['y'])
         
-        msg = quaternion_from_euler(roll, yaw, pitch)
+        msg = quaternion_from_euler(roll, pitch, yaw)
         self.publisher_.publish(msg)
         # Display the message on the console
-        self.get_logger().info('Publishing2: "%s"' % msg)
+        # self.get_logger().info('Publishing2: "%s"' % msg)
     
     def step(self,key):
-        range = self.ranges[key]
-        self.radians[key] = self.radians[key] + range[2]
-        if self.radians[key] >= range[1]:
-            range[2] = -range[2]
-        if self.radians[key] <= range[0]:
-            range[2] = range[2]
+        # self.get_logger().info(f"{key}, {self.radians[key]} {self.ranges[key]}")
+        myrange = self.ranges[key]
+        dontmove = False
+        direction=set([-1,1])
+        if self.radians[key] + myrange[2]*1 > myrange[1]:
+            direction.remove(1)
+        if self.radians[key] + myrange[2]*-1 < myrange[0]:
+            direction.remove(-1)
+        
+        # self.get_logger().info(f"{direction}")
+        if len(direction) == 0:
+            dontmove = True
+        else:
+            if myrange[3] in direction:
+                pass
+            else:
+                myrange[3] = next(iter(direction))
+        
+            
+        if not dontmove:
+            self.radians[key] = self.radians[key] + myrange[2] * myrange[3]
     
 def quaternion_from_euler(roll, pitch, yaw):
   """
